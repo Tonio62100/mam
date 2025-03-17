@@ -1,0 +1,132 @@
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+
+export default function Tombola() {
+  const totalTickets = 200;
+  const ticketPrice = 1;
+  const [ticketsSold, setTicketsSold] = useState([]);
+  const [winner, setWinner] = useState(null);
+  const [ticketCount, setTicketCount] = useState(1);
+  const [formVisible, setFormVisible] = useState(false);
+  const [formData, setFormData] = useState({ name: "", email: "", phone: "" });
+
+  const generateUniqueTicketNumber = () => {
+    let number;
+    do {
+      number = Math.floor(Math.random() * 1000000) + 1;
+    } while (ticketsSold.includes(number));
+    return number;
+  };
+
+  const buyTicket = () => {
+    setFormVisible(true);
+  };
+
+  const handleFormSubmit = () => {
+    if (ticketsSold.length + ticketCount <= totalTickets) {
+      const newTickets = Array.from({ length: ticketCount }, generateUniqueTicketNumber);
+      setTicketsSold([...ticketsSold, ...newTickets]);
+      window.location.href = `https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=your_paypal_email&amount=${ticketPrice * ticketCount}&currency_code=EUR&item_name=Tombola%20Tickets`;
+    }
+  };
+
+  const handleInputChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  return (
+    <div 
+      className="p-6 text-center min-h-screen bg-cover bg-center text-white" 
+      style={{ backgroundImage: "url('https://i.imgur.com/MXSV1uB.jpeg')" }}
+    >
+      <h2 className="text-2xl font-extrabold text-black">Tombola interactive à but non lucratif</h2>
+      <h1 className="text-4xl font-extrabold drop-shadow-lg text-black">MAM Le Manège Enchanté</h1>
+      <p className="mt-4 text-lg font-extrabold text-black">Tickets vendus: {ticketsSold.length} / {totalTickets}</p>
+      <p className="text-lg font-extrabold text-black">Prix du ticket: {ticketPrice}€</p>
+      
+      {!winner ? (
+        !formVisible ? (
+          <>
+            <Button className="mt-4 text-lg px-6 py-3 font-bold bg-gray-500 text-white" disabled>
+              Sélectionner nombre de tickets tombola
+            </Button>
+            <input
+              type="number"
+              min="1"
+              max={totalTickets - ticketsSold.length}
+              value={ticketCount}
+              onChange={(e) => setTicketCount(parseInt(e.target.value) || 1)}
+              className="border p-3 w-24 mt-2 text-black font-bold text-lg"
+            />
+            <Button onClick={buyTicket} disabled={ticketsSold.length >= totalTickets} className="mt-4 ml-2 text-lg px-6 py-3 font-bold bg-blue-500 hover:bg-blue-600">
+              Acheter
+            </Button>
+          </>
+        ) : (
+          <div className="mt-4 p-4 bg-white text-black rounded-lg shadow-lg">
+            <h3 className="text-xl font-bold">Informations d'achat</h3>
+            <input
+              type="text"
+              name="name"
+              placeholder="Nom"
+              value={formData.name}
+              onChange={handleInputChange}
+              className="border p-2 w-full mt-2"
+            />
+            <input
+              type="email"
+              name="email"
+              placeholder="Adresse e-mail"
+              value={formData.email}
+              onChange={handleInputChange}
+              className="border p-2 w-full mt-2"
+            />
+            <input
+              type="tel"
+              name="phone"
+              placeholder="Numéro de téléphone"
+              value={formData.phone}
+              onChange={handleInputChange}
+              className="border p-2 w-full mt-2"
+            />
+            <Button onClick={handleFormSubmit} className="mt-4 text-lg px-6 py-3 font-bold bg-green-500 hover:bg-green-600">
+              Valider et payer
+            </Button>
+            <Button onClick={() => setFormVisible(false)} className="mt-2 text-lg px-6 py-3 font-bold bg-red-500 hover:bg-red-600">
+              Retour
+            </Button>
+          </div>
+        )
+      ) : (
+        <Card className="mt-6 bg-yellow-400 shadow-xl">
+          <CardContent className="p-6 text-xl font-extrabold text-center text-black">
+            🎉 Le gagnant est le ticket #{winner} ! 🎉
+          </CardContent>
+        </Card>
+      )}
+      
+      <div className="mt-8">
+        <h2 className="text-3xl font-extrabold drop-shadow-lg text-black">🎁 Lots à gagner 🎁</h2>
+        <div className="flex justify-center mt-6 space-x-6">
+          <Card className="w-64 p-6 text-center shadow-lg bg-white text-black">
+            <img src="https://i.imgur.com/N6pSaVv.jpeg" alt="Carte cadeau Cité Europe 50€" className="mx-auto mb-3" />
+            <CardContent className="text-lg font-extrabold">Carte cadeau 50€ Cité Europe</CardContent>
+            <p className="text-sm text-black font-extrabold">Lot #1</p>
+          </Card>
+          <Card className="w-64 p-6 text-center shadow-lg bg-white text-black">
+            <img src="https://www.quebecechantillonsgratuits.com/wp-content/uploads/2021/12/Amazon-Gift-Card.jpg" alt="Carte cadeau Amazon 20€" className="mx-auto mb-3" />
+            <CardContent className="text-lg font-extrabold">Carte cadeau 20€ Amazon</CardContent>
+            <p className="text-sm text-black font-extrabold">Lot #2</p>
+          </Card>
+          <Card className="w-64 p-6 text-center shadow-lg bg-white text-black">
+            <img src="https://tse2.mm.bing.net/th?id=OIP.KzxP4jJmf7zDv9JIN06LgAHaHI&pid=Api&P=0&h=180" alt="Ballon de foot" className="mx-auto mb-3" />
+            <CardContent className="text-lg font-extrabold">Ballon de foot</CardContent>
+            <p className="text-sm text-black font-extrabold">Lot #3</p>
+          </Card>
+        </div>
+        <p className="mt-6 text-lg font-bold text-black">Les fonds récoltés seront utilisés afin d'améliorer et d'acheter du matériel pour le bon fonctionnement de la MAM.</p>
+      </div>
+    </div>
+  );
+}
